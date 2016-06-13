@@ -1,17 +1,20 @@
 import codecs
-FILE_NAME = 'article/Le Petit Prince (fr).txt'
+
+DECODING = 'utf-8'
+FILE_NAME = 'article/Le_Petit_Prince_fr'
 DICT_NAME = 'dict/dict_fr.txt'
-LENGTH = 20
+LENGTH = 5
+STRIPPED_LETTERS = """!"'`@$%^&_-+={}|\\/,;:.-?)([]<>*#\n\t\r1234567890"""
 
 def show():
 
-    file = codecs.open(FILE_NAME, 'r', 'utf-8')
+    file = codecs.open(FILE_NAME, 'r', DECODING)
     words = file.read().split()
 
-    dict_read = codecs.open(DICT_NAME, 'r', 'utf-8')
+    dict_read = codecs.open(DICT_NAME, 'r', DECODING)
     vocab = dict_read.read().split()
 
-    ＃ Might want to distinguish "s" and "ed"
+    # Might want to distinguish "s" and "ed"
     # vocab_new = vocab[:]
     # suffixes = ['s', 'ed']
     # for suffix in suffixes:
@@ -25,7 +28,7 @@ def show():
 
     word_to_freq = {}
     for i in range(len(words)):
-        words[i] = words[i].lower().strip("""!"'`@$%^&_-+={}|\\/,;:.-?)([]<>*#\n\t\r1234567890""")
+        words[i] = words[i].lower().strip(STRIPPED_LETTERS)
         if words[i] != '' and words[i] not in vocab:
             if words[i] not in word_to_freq:
                 word_to_freq[words[i]] = 0
@@ -61,7 +64,7 @@ if __name__ == '__main__':
     show()
     while True:
         dict_append = codecs.open(DICT_NAME, 'a', 'utf-8')
-        dict_append.write(input('Input: '))
+        dict_append.write(input('Input: ').strip())
         dict_append.write('\n')
         dict_append.close()
         print("\n" * 100)
