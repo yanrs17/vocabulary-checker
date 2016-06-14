@@ -1,17 +1,18 @@
 import codecs
 
 DECODING = 'utf-8'
-FILE_NAME = 'article/Le_Petit_Prince_fr'
-DICT_NAME = 'dict/dict_fr.txt'
-LENGTH = 5
+ARTICLE_NAME = 'Le_Petit_Prince'
+LANGUAGE = 'fr'
+LENGTH = 20
+LENGTH_OF_EACH_FREQ = 10
 STRIPPED_LETTERS = """!"'`@$%^&_-+={}|\\/,;:.-?)([]<>*#\n\t\r1234567890"""
 
 def show():
 
-    file = codecs.open(FILE_NAME, 'r', DECODING)
+    file = codecs.open('article/' + ARTICLE_NAME + '_' + LANGUAGE + '.txt', 'r', DECODING)
     words = file.read().split()
 
-    dict_read = codecs.open(DICT_NAME, 'r', DECODING)
+    dict_read = codecs.open('dict/dict_' + LANGUAGE + '.txt', 'r', DECODING)
     vocab = dict_read.read().split()
 
     # Might want to distinguish "s" and "ed"
@@ -54,8 +55,8 @@ def show():
     while length != 0 and len(freq) != 0:
         frequency = freq.pop()
         word = freq_to_word[frequency]
-        if len(word) > 10:
-            word = word[0:9]
+        if len(word) > LENGTH_OF_EACH_FREQ:
+            word = word[0:LENGTH_OF_EACH_FREQ-1]
         print(frequency, word)
 
         length -= 1
@@ -63,9 +64,12 @@ def show():
 if __name__ == '__main__':
     show()
     while True:
-        dict_append = codecs.open(DICT_NAME, 'a', 'utf-8')
-        dict_append.write(input('Input: ').strip())
-        dict_append.write('\n')
+        dict_append = codecs.open('dict/dict_' + LANGUAGE + '.txt', 'a', 'utf-8')
+        added = input('Input: ')
+        added = added.strip()
+        if (added):
+            dict_append.write(added)
+            dict_append.write('\n')
         dict_append.close()
         print("\n" * 100)
         show()
