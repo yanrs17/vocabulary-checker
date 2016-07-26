@@ -1,7 +1,7 @@
 import codecs
 
 DECODING = 'utf-8'
-ARTICLE_NAME = 'Website'
+ARTICLE_NAME = 'Le_Petit_Prince'
 LANGUAGE = 'fr'
 LENGTH = 20
 LENGTH_OF_EACH_FREQ = 10
