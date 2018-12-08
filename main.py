@@ -17,13 +17,25 @@ def get_word_to_freq(article, dictionary):
         add_word_in_word_to_freq(word, word_to_freq)
     return word_to_freq
 
-def add_word_in_word_to_freq(word, word_to_freq):
+def process_word(word):
+    # English version
     word = word.strip(STRIPPED_LETTERS)
+    if len(word) > 0 and word[0] not in string.ascii_lowercase:
+        return None
+    if len(word) > 4 and word[:4] == 'http':
+        return None
     while '’' in word:
         word = word.replace('’', "'")
     while '¡' in word:
         word = word.replace('¡', 'ff')
-    if word and word not in vocab_list and word[0] in string.ascii_lowercase and word[:4] != 'http':
+    if len(word) > 2 and word[-2:] == "'s":
+        word = word[:-2]
+    return word
+
+def add_word_in_word_to_freq(word, word_to_freq):
+    
+    word = process_word(word)
+    if word and word not in vocab_list:
         if word not in word_to_freq:
             word_to_freq[word] = 0
         word_to_freq[word] += 1
@@ -63,7 +75,7 @@ def get_new_word(dictionary):
 
 if __name__ == '__main__':
 
-    ARTICLE_NAME = 'lin201'
+    ARTICLE_NAME = 'ast101'
     LANGUAGE = 'en'
     TOP_N = 20
 
