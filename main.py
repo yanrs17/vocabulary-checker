@@ -1,11 +1,10 @@
 import codecs
+import string
 
 DECODING = 'utf-8'
-ARTICLE_NAME = 'lin201'
-LANGUAGE = 'en'
-TOP_N = 10
-# LEN_EACH_FREQ = 10
 STRIPPED_LETTERS = """!"'`@$%^&_-+={}|\\/,;:.-?)([]<>*#\n\t\r1234567890"""
+PATH_ARTICLE = 'article/{}_{}.txt'
+PATH_DICT = 'dict/dict_{}.txt'
 
 def get_word_to_freq(article, dictionary):
     
@@ -19,8 +18,12 @@ def get_word_to_freq(article, dictionary):
     return word_to_freq
 
 def add_word_in_word_to_freq(word, word_to_freq):
-    word = word.lower().strip(STRIPPED_LETTERS)
-    if word != '' and word not in vocab_list:
+    word = word.strip(STRIPPED_LETTERS)
+    while '’' in word:
+        word = word.replace('’', "'")
+    while '¡' in word:
+        word = word.replace('¡', 'ff')
+    if word and word not in vocab_list and word[0] in string.ascii_lowercase and word[:4] != 'http':
         if word not in word_to_freq:
             word_to_freq[word] = 0
         word_to_freq[word] += 1
@@ -48,9 +51,24 @@ def show(freq_to_word):
     for freq in freq_list[list_len-TOP_N: list_len]:
         print(freq, freq_to_word[freq])
 
+def get_new_word(dictionary):
+    dict_append = codecs.open(dictionary, 'a', 'utf-8')
+    new_word = input('Input: ').strip()
+    if new_word:
+        dict_append.write(new_word)
+        dict_append.write('\n')
+        print("=" * 100 + '\n')
+    dict_append.close()
+    return new_word
+
 if __name__ == '__main__':
-    article = 'article/{}_{}.txt'.format(ARTICLE_NAME, LANGUAGE)
-    dictionary = 'dict/dict_{}.txt'.format(LANGUAGE)
+
+    ARTICLE_NAME = 'lin201'
+    LANGUAGE = 'en'
+    TOP_N = 20
+
+    article = PATH_ARTICLE.format(ARTICLE_NAME, LANGUAGE)
+    dictionary = PATH_DICT.format(LANGUAGE)
 
     dict_read = codecs.open(dictionary, 'r', DECODING)
     vocab_list = dict_read.read().split()
@@ -61,14 +79,8 @@ if __name__ == '__main__':
     show(freq_to_word)
 
     while True:
-        dict_append = codecs.open('dict/dict_' + LANGUAGE + '.txt', 'a', 'utf-8')
-        new_word = input('Input: ').strip()
+        new_word = get_new_word(dictionary)
         if new_word:
-            dict_append.write(new_word)
-            dict_append.write('\n')
-        dict_append.close()
-        print("=" * 100 + '\n')
-
-        remove_word_in_freq_to_word(new_word, word_to_freq, freq_to_word)
-        add_word_in_word_to_freq(new_word, word_to_freq)
-        show(freq_to_word)
+            remove_word_in_freq_to_word(new_word, word_to_freq, freq_to_word)
+            add_word_in_word_to_freq(new_word, word_to_freq)
+            show(freq_to_word)
