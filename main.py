@@ -1,75 +1,74 @@
 import codecs
 
 DECODING = 'utf-8'
-ARTICLE_NAME = 'Le_Petit_Prince'
-LANGUAGE = 'fr'
-LENGTH = 20
-LENGTH_OF_EACH_FREQ = 10
+ARTICLE_NAME = 'lin201'
+LANGUAGE = 'en'
+TOP_N = 10
+# LEN_EACH_FREQ = 10
 STRIPPED_LETTERS = """!"'`@$%^&_-+={}|\\/,;:.-?)([]<>*#\n\t\r1234567890"""
 
-def show():
-
-    file = codecs.open('article/' + ARTICLE_NAME + '_' + LANGUAGE + '.txt', 'r', DECODING)
-    words = file.read().split()
-
-    dict_read = codecs.open('dict/dict_' + LANGUAGE + '.txt', 'r', DECODING)
-    vocab = dict_read.read().split()
-
-    # Might want to distinguish "s" and "ed"
-    # vocab_new = vocab[:]
-    # suffixes = ['s', 'ed']
-    # for suffix in suffixes:
-    #     vocab_with_suffix = vocab_new[:]
-    #     for i in range(len(vocab_with_suffix)):
-    #         vocab_with_suffix[i] += suffix
-    #     vocab.extend(vocab_with_suffix)
-    #
-    # print(vocab)
-
+def get_word_to_freq(article, dictionary):
+    
+    file = codecs.open(article, 'r', DECODING)
+    word_list = file.read().split()
+    file.close()
 
     word_to_freq = {}
-    for i in range(len(words)):
-        words[i] = words[i].lower().strip(STRIPPED_LETTERS)
-        if words[i] != '' and words[i] not in vocab:
-            if words[i] not in word_to_freq:
-                word_to_freq[words[i]] = 0
-            word_to_freq[words[i]] += 1
+    for word in word_list:
+        add_word_in_word_to_freq(word, word_to_freq)
+    return word_to_freq
 
+def add_word_in_word_to_freq(word, word_to_freq):
+    word = word.lower().strip(STRIPPED_LETTERS)
+    if word != '' and word not in vocab_list:
+        if word not in word_to_freq:
+            word_to_freq[word] = 0
+        word_to_freq[word] += 1
+
+def get_freq_to_word(word_to_freq):
     freq_to_word = {}
     for word in word_to_freq:
         if word_to_freq[word] not in freq_to_word:
             freq_to_word[word_to_freq[word]] = []
         freq_to_word[word_to_freq[word]].append(word)
+    return freq_to_word
 
-    freq = []
-    for frequency in freq_to_word:
-        freq.append(frequency)
-    freq.sort()
+def remove_word_in_freq_to_word(word, word_to_freq, freq_to_word):
+    cur_word = word_to_freq[word]
+    if cur_word in freq_to_word:
+        freq_to_word[cur_word].remove(word)
+        if len(freq_to_word[cur_word]) == 0:
+            del freq_to_word[cur_word]
 
-    file.close()
-    dict_read.close()
+def show(freq_to_word):
+    freq_list = list(freq_to_word.keys())
+    freq_list.sort()
+    list_len = len(freq_list)
 
-    frequency = freq.pop()
-    print(frequency, freq_to_word[frequency])
-    length = LENGTH - 1
-    while length != 0 and len(freq) != 0:
-        frequency = freq.pop()
-        word = freq_to_word[frequency]
-        if len(word) > LENGTH_OF_EACH_FREQ:
-            word = word[0:LENGTH_OF_EACH_FREQ-1]
-        print(frequency, word)
-
-        length -= 1
+    for freq in freq_list[list_len-TOP_N: list_len]:
+        print(freq, freq_to_word[freq])
 
 if __name__ == '__main__':
-    show()
+    article = 'article/{}_{}.txt'.format(ARTICLE_NAME, LANGUAGE)
+    dictionary = 'dict/dict_{}.txt'.format(LANGUAGE)
+
+    dict_read = codecs.open(dictionary, 'r', DECODING)
+    vocab_list = dict_read.read().split()
+    dict_read.close()
+
+    word_to_freq = get_word_to_freq(article, dictionary)
+    freq_to_word = get_freq_to_word(word_to_freq)
+    show(freq_to_word)
+
     while True:
         dict_append = codecs.open('dict/dict_' + LANGUAGE + '.txt', 'a', 'utf-8')
-        added = input('Input: ')
-        added = added.strip()
-        if (added):
-            dict_append.write(added)
+        new_word = input('Input: ').strip()
+        if new_word:
+            dict_append.write(new_word)
             dict_append.write('\n')
         dict_append.close()
-        print("\n" * 100)
-        show()
+        print("=" * 100 + '\n')
+
+        remove_word_in_freq_to_word(new_word, word_to_freq, freq_to_word)
+        add_word_in_word_to_freq(new_word, word_to_freq)
+        show(freq_to_word)
